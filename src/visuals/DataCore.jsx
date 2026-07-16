@@ -1,16 +1,51 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
-const lineMap = {
-  topLeft: 'M 50 50 C 38 35, 31 25, 20 18',
-  topRight: 'M 50 50 C 62 34, 71 24, 82 18',
-  bottomLeft: 'M 50 50 C 36 63, 29 76, 18 84',
-  bottomRight: 'M 50 50 C 64 64, 72 77, 84 84',
-};
-
 export function DataCore({ nodes }) {
   const mountRef = useRef(null);
   const shellRef = useRef(null);
+  const connectionRef = useRef(null);
+  const centerRef = useRef(null);
+  const pathRefs = useRef(new Map());
+  const nodeDotRefs = useRef(new Map());
+
+  useEffect(() => {
+    let frameId = 0;
+
+    const updateConnections = () => {
+      const connectionLayer = connectionRef.current;
+      const centerBadge = centerRef.current;
+
+      if (connectionLayer && centerBadge) {
+        const svgRect = connectionLayer.getBoundingClientRect();
+        const centerRect = centerBadge.getBoundingClientRect();
+        const startX = ((centerRect.left + centerRect.width / 2 - svgRect.left) / svgRect.width) * 100;
+        const startY = ((centerRect.top + centerRect.height / 2 - svgRect.top) / svgRect.height) * 100;
+
+        nodes.forEach((node) => {
+          const path = pathRefs.current.get(node.id);
+          const dot = nodeDotRefs.current.get(node.id);
+          if (!path || !dot) return;
+
+          const dotRect = dot.getBoundingClientRect();
+          const endX = ((dotRect.left + dotRect.width / 2 - svgRect.left) / svgRect.width) * 100;
+          const endY = ((dotRect.top + dotRect.height / 2 - svgRect.top) / svgRect.height) * 100;
+          const deltaX = endX - startX;
+          const deltaY = endY - startY;
+
+          path.setAttribute(
+            'd',
+            `M ${startX} ${startY} C ${startX + deltaX * 0.32} ${startY + deltaY * 0.08}, ${endX - deltaX * 0.16} ${endY - deltaY * 0.3}, ${endX} ${endY}`
+          );
+        });
+      }
+
+      frameId = requestAnimationFrame(updateConnections);
+    };
+
+    frameId = requestAnimationFrame(updateConnections);
+    return () => cancelAnimationFrame(frameId);
+  }, [nodes]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -187,22 +222,40 @@ export function DataCore({ nodes }) {
 
   return (
     <div className="dataCore dataCoreHub" ref={shellRef} onPointerMove={handleTilt}>
-      <svg className="connectionLayer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <svg
+        className="connectionLayer"
+        ref={connectionRef}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
         {nodes.map((node) => (
-          <path className={`connectionLine ${node.tone}`} d={lineMap[node.position]} key={node.id} />
+          <path
+            className={`connectionLine ${node.tone}`}
+            d="M 50 50"
+            key={node.id}
+            ref={(element) => {
+              if (element) pathRefs.current.set(node.id, element);
+            }}
+          />
         ))}
       </svg>
 
       <div className="canvasShell atomCanvas" ref={mountRef} aria-label="Atomo 3D interactivo" />
 
-      <div className="centerBadge">
+      <div className="centerBadge" ref={centerRef}>
         <span>Data</span>
         <strong>Core</strong>
       </div>
 
       {nodes.map((node) => (
         <a className={`hubCard ${node.position} ${node.tone}`} href={`#${node.id}`} key={node.id}>
-          <span className="nodeDot" />
+          <span
+            className="nodeDot"
+            ref={(element) => {
+              if (element) nodeDotRefs.current.set(node.id, element);
+            }}
+          />
           <div className="hubPreview">
             {node.preview.slice(0, 3).map((item, index) => (
               <span key={item} style={{ '--size': `${54 + index * 16}%` }}>
