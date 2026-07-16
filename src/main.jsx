@@ -196,10 +196,7 @@ function App() {
       <Navigation />
       <section className="hero section" id="inicio">
         <div className="heroIntro">
-          <p className="eyebrow">
-            <Sparkles size={16} />
-            Mapa interactivo
-          </p>
+
           <h1>{profile.name}</h1>
           <p className="role">{profile.role}</p>
           <p className="intro">{profile.intro}</p>
@@ -285,8 +282,7 @@ function Navigation() {
   return (
     <nav className="nav">
       <a href="#inicio" className="brand">
-        <span>TN</span>
-        Portfolio
+        Portfolio Luis Autran
       </a>
       <div className="navLinks">
         <a href="#herramientas">Herramientas</a>

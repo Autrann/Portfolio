@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap");
+
 :root {
   color-scheme: dark;
   --bg: #080a0f;
@@ -28,8 +30,7 @@ body {
     radial-gradient(circle at 82% 6%, rgba(242, 95, 92, 0.16), transparent 25rem),
     linear-gradient(135deg, #080a0f 0%, #10131b 46%, #090b10 100%);
   color: var(--text);
-  font-family:
-    Geist, "Geist Fallback", Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: "DM Sans", "Avenir Next", Avenir, ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
 a {
@@ -38,7 +39,7 @@ a {
 }
 
 main {
-  overflow: hidden;
+  overflow-x: clip;
 }
 
 .nav {
@@ -1975,16 +1976,21 @@ h1 {
 
 .projectGrid {
   display: block;
-  min-height: calc(100vh * 3);
-  margin-bottom: 120px;
+  margin-bottom: 128px;
+  padding-bottom: 34vh;
 }
 
 .projectCard {
   position: sticky;
-  top: calc(92px + (var(--index) * 18px));
+  top: calc(88px + var(--stack-offset));
+  z-index: var(--stack-order);
   width: min(860px, 100%);
   min-height: 520px;
-  margin: 0 auto 56px;
+  margin: 0 auto 38vh;
+}
+
+.projectCard:last-child {
+  margin-bottom: 0;
 }
 
 .projectCard:hover {
@@ -2029,12 +2035,187 @@ h1 {
 
 @media (max-width: 880px) {
   .projectGrid {
-    min-height: auto;
+    margin-bottom: 72px;
+    padding-bottom: 0;
   }
 
   .projectCard {
     position: relative;
     top: auto;
     min-height: 430px;
+    margin-bottom: 22px;
+  }
+}
+
+/* Compact glass cards for the portfolio sections */
+h1,
+h2,
+h3,
+.brand {
+  font-family: "Space Grotesk", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+.sectionHeader h2 {
+  letter-spacing: -0.055em;
+}
+
+.sectionHeader#experiencia + .timeline,
+.sectionHeader#educacion + .educationCarousel,
+.sectionHeader#proyectos + .projectGrid {
+  width: min(900px, calc(100% - 32px));
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.sectionHeader#experiencia + .timeline {
+  gap: 14px;
+  margin-bottom: 68px;
+}
+
+.timelineItem {
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 18px;
+}
+
+.timelineItem time {
+  min-height: 38px;
+  padding: 0 11px;
+  border-radius: 12px;
+  background: rgba(79, 227, 193, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.timelineItem > div,
+.educationCard,
+.projectCard {
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.025) 58%),
+    rgba(13, 18, 29, 0.54);
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(18px) saturate(125%);
+}
+
+.timelineItem > div {
+  padding: 18px 20px;
+}
+
+.timelineItem h3,
+.educationCard h3,
+.projectCard h3 {
+  font-size: 1.18rem;
+  letter-spacing: -0.035em;
+}
+
+.timelineItem p,
+.educationCard p,
+.projectCard p {
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.sectionHeader#educacion + .educationCarousel {
+  position: relative;
+  margin-bottom: 68px;
+  padding: 20px 0 28px;
+}
+
+.educationCard {
+  flex-basis: 278px;
+  min-height: 235px;
+  padding: 18px;
+}
+
+.educationCard time {
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+
+.educationCard h3 {
+  margin: 16px 0 6px;
+}
+
+.educationCard strong {
+  margin-bottom: 8px;
+}
+
+.educationCard::after {
+  width: 70px;
+  height: 70px;
+}
+
+.projectGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-height: auto;
+  gap: 16px;
+  margin-bottom: 76px;
+  padding: 0;
+}
+
+.projectCard,
+.projectCard:last-child {
+  position: relative;
+  top: auto;
+  z-index: auto;
+  width: auto;
+  min-height: 330px;
+  gap: 16px;
+  margin: 0;
+  padding: 16px;
+}
+
+.projectPreview,
+.projectPreview img {
+  min-height: 104px;
+  border-radius: 12px;
+}
+
+.projectType {
+  margin-bottom: 8px;
+}
+
+.projectCard h3 {
+  margin-bottom: 8px;
+}
+
+.stackList {
+  gap: 6px;
+}
+
+.stackList span {
+  padding: 5px 8px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.projectActions a {
+  min-height: 34px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 760px) {
+  .timelineItem {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .timelineItem time {
+    width: fit-content;
+  }
+
+  .projectGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .projectCard,
+  .projectCard:last-child {
+    min-height: 0;
   }
 }
