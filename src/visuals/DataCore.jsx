@@ -19,8 +19,19 @@ export function DataCore({ nodes }) {
       if (connectionLayer && centerBadge) {
         const svgRect = connectionLayer.getBoundingClientRect();
         const centerRect = centerBadge.getBoundingClientRect();
+
+        if (!svgRect.width || !svgRect.height || !centerRect.width || !centerRect.height) {
+          frameId = requestAnimationFrame(updateConnections);
+          return;
+        }
+
         const startX = ((centerRect.left + centerRect.width / 2 - svgRect.left) / svgRect.width) * 100;
         const startY = ((centerRect.top + centerRect.height / 2 - svgRect.top) / svgRect.height) * 100;
+
+        if (!Number.isFinite(startX) || !Number.isFinite(startY)) {
+          frameId = requestAnimationFrame(updateConnections);
+          return;
+        }
 
         nodes.forEach((node) => {
           const path = pathRefs.current.get(node.id);
@@ -30,6 +41,9 @@ export function DataCore({ nodes }) {
           const dotRect = dot.getBoundingClientRect();
           const endX = ((dotRect.left + dotRect.width / 2 - svgRect.left) / svgRect.width) * 100;
           const endY = ((dotRect.top + dotRect.height / 2 - svgRect.top) / svgRect.height) * 100;
+
+          if (!Number.isFinite(endX) || !Number.isFinite(endY)) return;
+
           const deltaX = endX - startX;
           const deltaY = endY - startY;
 
@@ -56,7 +70,6 @@ export function DataCore({ nodes }) {
     camera.position.set(0, 0.15, 6.8);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    // A restrained pixel ratio keeps the animated canvas crisp without overspending GPU on high-density screens.
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     mount.appendChild(renderer.domElement);
 

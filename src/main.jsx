@@ -102,7 +102,6 @@ const profile = {
       type: 'Data Analytics',
       description:
         'Panel interactivo para monitorear ventas, tendencias, productos clave y rendimiento por periodo.',
-      // Agrega la ruta de la imagen, por ejemplo: '/projects/dashboard-ventas.webp'.
       image: null,
       imageAlt: 'Vista previa del dashboard de ventas',
       demoUrl: "www.google.com",
