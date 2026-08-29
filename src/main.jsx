@@ -1,5 +1,5 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { createPortal, createRoot } from 'react-dom/client';
 import {
   ArrowUpRight,
   Atom,
@@ -14,10 +14,12 @@ import {
   GraduationCap,
   Mail,
   MapPin,
+  Maximize2,
   MonitorPlay,
   Sparkles,
   Table2,
   TerminalSquare,
+  X,
 } from 'lucide-react';
 import './styles.css';
 import { DataCore } from './visuals/DataCore.jsx';
@@ -129,9 +131,9 @@ const hubNodes = [
   },
   {
     id: 'experiencia',
-    label: 'Experiencia',
-    title: 'Trabajo real',
-    text: 'Dashboards, procesos, interfaces y analisis.',
+    label: 'Experiencia Profesional',
+    title: 'Software Engineer',
+    text: '3 años de experiencia profesional',
     stat: `${profile.experience.length} roles`,
     position: 'topRight',
     tone: 'gold',
@@ -151,7 +153,7 @@ const hubNodes = [
     id: 'proyectos',
     label: 'Proyectos',
     title: 'Laboratorio',
-    text: 'Proyectos personales para mostrar criterio.',
+    text: 'Proyectos personales y Freelance.',
     stat: `${profile.projects.length} builds`,
     position: 'bottomRight',
     tone: 'coral',
@@ -236,9 +238,8 @@ function App() {
       <SectionHeader
         id="experiencia"
         icon={<BriefcaseBusiness />}
-        kicker="Trayectoria"
+        kicker=""
         title="Experiencia profesional"
-        copy="Roles y actividades donde he combinado pensamiento analitico con ejecucion tecnica."
       />
       <Timeline items={profile.experience} />
 
@@ -373,18 +374,18 @@ function Timeline({ items, compact = false }) {
 }
 
 function EducationCarousel({ items }) {
-  const [activeItem, setActiveItem] = React.useState(null);
-  const duplicatedItems = [...items, ...items];
+  const carouselItems = [...items, ...items];
 
   return (
-    <section className="educationCarousel showcaseSection" data-reveal onMouseLeave={() => setActiveItem(null)}>
-      <div className="carouselTrack">
-        {duplicatedItems.map((item, index) => (
+    <section className="educationCarousel showcaseSection" data-reveal>
+      <div className="carouselViewport">
+        <div className="carouselTrack">
+        {carouselItems.map((item, index) => (
           <article
             className="educationCard spotlightCard"
             key={`${item.title}-${item.period}-${index}`}
             style={{ '--delay': `${index * 80}ms` }}
-            onMouseEnter={() => setActiveItem(item)}
+            aria-hidden={index >= items.length}
           >
             <time>{item.period}</time>
             <div>
@@ -394,15 +395,8 @@ function EducationCarousel({ items }) {
             </div>
           </article>
         ))}
+        </div>
       </div>
-      {activeItem && (
-        <article className="educationFocusCard">
-          <time>{activeItem.period}</time>
-          <h3>{activeItem.title}</h3>
-          <strong>{activeItem.place}</strong>
-          <p>{activeItem.detail}</p>
-        </article>
-      )}
     </section>
   );
 }
@@ -411,10 +405,24 @@ function ProjectCard({ project, index }) {
   const hasImage = Boolean(project.image);
   const demoUrl = project.demoUrl || '#';
   const codeUrl = project.codeUrl || '#';
+  const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setIsPreviewOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, []);
 
   return (
     <article className="projectCard spotlightCard" style={{ '--index': index }}>
-      <div className="projectPreview">
+      <button
+        className="projectPreview"
+        type="button"
+        aria-label={`Ampliar preview de ${project.name}`}
+        onClick={() => setIsPreviewOpen(true)}
+      >
         {hasImage ? (
           <img src={project.image} alt={`Preview de ${project.name}`} />
         ) : (
@@ -425,7 +433,10 @@ function ProjectCard({ project, index }) {
             <i />
           </div>
         )}
-      </div>
+        <span className="previewExpand" aria-hidden="true">
+          <Maximize2 size={17} />
+        </span>
+      </button>
       <div>
         <span className="projectType">{project.type}</span>
         <h3>{project.name}</h3>
@@ -446,6 +457,26 @@ function ProjectCard({ project, index }) {
           Codigo
         </a>
       </div>
+      {isPreviewOpen && createPortal(
+        <div className="previewModal" role="dialog" aria-modal="true" aria-label={`Preview ampliado de ${project.name}`} onClick={() => setIsPreviewOpen(false)}>
+          <div className="previewModalContent" onClick={(event) => event.stopPropagation()}>
+            <button className="previewModalClose" type="button" aria-label="Cerrar preview" onClick={() => setIsPreviewOpen(false)}>
+              <X size={20} />
+            </button>
+            {hasImage ? (
+              <img src={project.image} alt={`Preview ampliado de ${project.name}`} />
+            ) : (
+              <div className="generatedPreview previewModalPlaceholder" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+                <i />
+              </div>
+            )}
+            <p>{project.name}</p>
+          </div>
+        </div>
+      , document.body)}
     </article>
   );
 }
