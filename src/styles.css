@@ -2257,110 +2257,41 @@ h3,
   transform: translateY(-7px) rotateY(0deg) rotateX(2deg) scale(1.035) translateZ(48px);
 }
 
-/* Expandable project previews */
+/* Project template: resource preview, description, technology section and optional links */
 .projectPreview {
   width: 100%;
   padding: 0;
-  color: inherit;
-  cursor: zoom-in;
-  appearance: none;
-  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
-.projectPreview:hover {
-  border-color: rgba(79, 227, 193, 0.48);
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
-  transform: translateZ(38px) scale(1.02);
-}
-
-.previewExpand {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 10px;
-  background: rgba(8, 10, 15, 0.62);
-  color: var(--text);
-  backdrop-filter: blur(12px);
-}
-
-.previewModal {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: rgba(3, 5, 9, 0.72);
-  backdrop-filter: blur(16px);
-  animation: previewFadeIn 180ms ease both;
-}
-
-.previewModalContent {
-  position: relative;
-  width: min(880px, 100%);
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  background: rgba(12, 16, 24, 0.78);
-  box-shadow:
-    0 40px 120px rgba(0, 0, 0, 0.6),
-    0 0 56px rgba(79, 227, 193, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  transform: perspective(1000px) rotateX(2deg) scale(0.98);
-  animation: previewLiftIn 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-.previewModalContent > img,
-.previewModalPlaceholder {
+.projectPreview img {
   display: block;
-  width: 100%;
-  min-height: min(64vh, 560px);
-  object-fit: contain;
 }
 
-.previewModalPlaceholder {
+.projectContent {
+  display: grid;
+  gap: 0;
+}
+
+.projectTechnologies {
   position: relative;
-}
-
-.previewModalContent > p {
-  margin: 0;
-  padding: 14px 20px;
-  color: var(--muted);
-  font-weight: 700;
-  text-align: center;
-}
-
-.previewModalClose {
-  position: absolute;
-  top: 14px;
-  right: 14px;
   z-index: 1;
   display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 12px;
-  background: rgba(8, 10, 15, 0.72);
-  color: var(--text);
-  cursor: pointer;
-  backdrop-filter: blur(12px);
+  gap: 9px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  transform: translateZ(38px);
 }
 
-@keyframes previewFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.projectTechnologiesLabel {
+  color: var(--cyan);
+  font-size: 0.69rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-@keyframes previewLiftIn {
-  from { transform: perspective(1000px) translateY(22px) rotateX(7deg) scale(0.94); }
-  to { transform: perspective(1000px) rotateX(2deg) scale(0.98); }
+.projectPreviewPlaceholder {
+  color: var(--muted);
 }
 
 @media (max-width: 760px) {
@@ -2395,5 +2326,125 @@ h3,
 @media (prefers-reduced-motion: reduce) {
   .educationCarousel .carouselTrack {
     animation-play-state: paused;
+  }
+}
+
+/* Full-size project previews */
+.projectPreviewAction {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 10px;
+  background: rgba(8, 10, 15, 0.76);
+  color: var(--text);
+  cursor: zoom-in;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 900;
+  backdrop-filter: blur(12px);
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.projectPreviewAction:hover {
+  background: var(--cyan);
+  color: #06110f;
+  transform: translateY(-3px);
+}
+
+.previewModal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(3, 5, 9, 0.76);
+  backdrop-filter: blur(16px);
+  animation: previewFadeIn 180ms ease both;
+}
+
+.previewModalContent {
+  position: relative;
+  width: min(920px, 100%);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  background: rgba(12, 16, 24, 0.9);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.64);
+  animation: previewLiftIn 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.previewModalContent > img,
+.previewModalPlaceholder {
+  display: block;
+  width: 100%;
+  max-height: min(72vh, 680px);
+  min-height: min(52vh, 460px);
+  object-fit: contain;
+}
+
+.previewModalContent > p {
+  margin: 0;
+  padding: 14px 20px;
+  color: var(--muted);
+  font-weight: 700;
+  text-align: center;
+}
+
+.previewModalClose {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  background: rgba(8, 10, 15, 0.76);
+  color: var(--text);
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+}
+
+@keyframes previewFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes previewLiftIn {
+  from { transform: translateY(20px) scale(0.96); }
+  to { transform: translateY(0) scale(1); }
+}
+
+.dataCoreLoading {
+  min-height: 720px;
+}
+
+@media (max-width: 680px) {
+  .previewModal {
+    padding: 14px;
+  }
+
+  .previewModalContent {
+    border-radius: 16px;
+  }
+
+  .previewModalContent > img,
+  .previewModalPlaceholder {
+    min-height: 44vh;
+  }
+
+  .dataCoreLoading {
+    min-height: 494px;
   }
 }

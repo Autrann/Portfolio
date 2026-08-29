@@ -22,7 +22,10 @@ import {
   X,
 } from 'lucide-react';
 import './styles.css';
-import { DataCore } from './visuals/DataCore.jsx';
+
+const DataCore = React.lazy(() =>
+  import('./visuals/DataCore.jsx').then(({ DataCore: DataCoreComponent }) => ({ default: DataCoreComponent }))
+);
 
 const profile = {
   name: 'Luis Autran',
@@ -99,21 +102,34 @@ const profile = {
       type: 'Data Analytics',
       description:
         'Panel interactivo para monitorear ventas, tendencias, productos clave y rendimiento por periodo.',
-      stack: ['Power BI', 'SQL', 'Excel'],
+      // Agrega la ruta de la imagen, por ejemplo: '/projects/dashboard-ventas.webp'.
+      image: null,
+      imageAlt: 'Vista previa del dashboard de ventas',
+      demoUrl: "www.google.com",
+      repoUrl: null,
+      technologies: ['Power BI', 'SQL', 'Excel'],
     },
     {
       name: 'Sistema de inventario',
       type: 'Web App',
       description:
         'Aplicacion para registrar movimientos, alertas de stock y reportes descargables.',
-      stack: ['React', 'Node', 'SQLite'],
+      image: null,
+      imageAlt: 'Vista previa del sistema de inventario',
+      demoUrl: null,
+      repoUrl: null,
+      technologies: ['React', 'Node', 'SQLite'],
     },
     {
       name: 'Modelo de limpieza de datos',
       type: 'Automation',
       description:
         'Pipeline en Python para normalizar archivos, detectar errores y generar un resumen ejecutivo.',
-      stack: ['Python', 'Pandas', 'Jupyter'],
+      image: null,
+      imageAlt: 'Vista previa del modelo de limpieza de datos',
+      demoUrl: null,
+      repoUrl: null,
+      technologies: ['Python', 'Pandas', 'Jupyter'],
     },
   ],
 };
@@ -213,7 +229,9 @@ function App() {
             </span>
           </div>
         </div>
-        <DataCore nodes={hubNodes} />
+        <React.Suspense fallback={<div className="dataCore dataCoreHub dataCoreLoading" aria-hidden="true" />}>
+          <DataCore nodes={hubNodes} />
+        </React.Suspense>
         <div className="heroActions heroActionsFloating">
           <a className="primaryButton" href="#proyectos">
             Ver proyectos
@@ -403,70 +421,81 @@ function EducationCarousel({ items }) {
 
 function ProjectCard({ project, index }) {
   const hasImage = Boolean(project.image);
-  const demoUrl = project.demoUrl || '#';
-  const codeUrl = project.codeUrl || '#';
+  const technologies = project.technologies || [];
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
 
   React.useEffect(() => {
+    if (!isPreviewOpen) return undefined;
+
     const closeOnEscape = (event) => {
       if (event.key === 'Escape') setIsPreviewOpen(false);
     };
     window.addEventListener('keydown', closeOnEscape);
     return () => window.removeEventListener('keydown', closeOnEscape);
-  }, []);
+  }, [isPreviewOpen]);
 
   return (
     <article className="projectCard spotlightCard" style={{ '--index': index }}>
-      <button
-        className="projectPreview"
-        type="button"
-        aria-label={`Ampliar preview de ${project.name}`}
-        onClick={() => setIsPreviewOpen(true)}
-      >
+      <div className="projectPreview">
         {hasImage ? (
-          <img src={project.image} alt={`Preview de ${project.name}`} />
+          <img src={project.image} alt={project.imageAlt || `Preview de ${project.name}`} />
         ) : (
-          <div className="generatedPreview" aria-hidden="true">
+          <div className="generatedPreview projectPreviewPlaceholder" role="img" aria-label={`Agrega una imagen de preview para ${project.name}`}>
             <span />
             <span />
             <span />
             <i />
           </div>
         )}
-        <span className="previewExpand" aria-hidden="true">
-          <Maximize2 size={17} />
-        </span>
-      </button>
-      <div>
+        <button
+          className="projectPreviewAction"
+          type="button"
+          aria-label={`Ver preview ampliado de ${project.name}`}
+          onClick={() => setIsPreviewOpen(true)}
+        >
+          <Maximize2 size={16} />
+          Ver
+        </button>
+      </div>
+      <div className="projectContent">
         <span className="projectType">{project.type}</span>
         <h3>{project.name}</h3>
         <p>{project.description}</p>
       </div>
-      <div className="stackList">
-        {project.stack.map((item) => (
-          <span key={item}>{item}</span>
-        ))}
+      <div className="projectTechnologies" aria-label={`Tecnologias usadas en ${project.name}`}>
+        <span className="projectTechnologiesLabel">Tecnologias</span>
+        <div className="stackList">
+          {technologies.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
       </div>
-      <div className="projectActions">
-        <a href={demoUrl} target={project.demoUrl ? '_blank' : undefined} rel="noreferrer">
-          <MonitorPlay size={16} />
-          Demo
-        </a>
-        <a href={codeUrl} target={project.codeUrl ? '_blank' : undefined} rel="noreferrer">
-          <ExternalLink size={16} />
-          Codigo
-        </a>
-      </div>
+      {(project.demoUrl || project.repoUrl) && (
+        <div className="projectActions">
+          {project.demoUrl && (
+            <a href={project.demoUrl} target="_blank" rel="noreferrer">
+              <MonitorPlay size={16} />
+              Ver demo
+            </a>
+          )}
+          {project.repoUrl && (
+            <a href={project.repoUrl} target="_blank" rel="noreferrer">
+              <ExternalLink size={16} />
+              Ver codigo
+            </a>
+          )}
+        </div>
+      )}
       {isPreviewOpen && createPortal(
-        <div className="previewModal" role="dialog" aria-modal="true" aria-label={`Preview ampliado de ${project.name}`} onClick={() => setIsPreviewOpen(false)}>
+        <div className="previewModal" role="dialog" aria-modal="true" aria-label={`Preview de ${project.name}`} onClick={() => setIsPreviewOpen(false)}>
           <div className="previewModalContent" onClick={(event) => event.stopPropagation()}>
             <button className="previewModalClose" type="button" aria-label="Cerrar preview" onClick={() => setIsPreviewOpen(false)}>
               <X size={20} />
             </button>
             {hasImage ? (
-              <img src={project.image} alt={`Preview ampliado de ${project.name}`} />
+              <img src={project.image} alt={project.imageAlt || `Preview de ${project.name}`} />
             ) : (
-              <div className="generatedPreview previewModalPlaceholder" aria-hidden="true">
+              <div className="generatedPreview previewModalPlaceholder" role="img" aria-label={`Preview de ${project.name}`}>
                 <span />
                 <span />
                 <span />
@@ -475,8 +504,9 @@ function ProjectCard({ project, index }) {
             )}
             <p>{project.name}</p>
           </div>
-        </div>
-      , document.body)}
+        </div>,
+        document.body
+      )}
     </article>
   );
 }

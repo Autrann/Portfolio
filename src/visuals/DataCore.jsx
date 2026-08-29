@@ -56,7 +56,8 @@ export function DataCore({ nodes }) {
     camera.position.set(0, 0.15, 6.8);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // A restrained pixel ratio keeps the animated canvas crisp without overspending GPU on high-density screens.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     mount.appendChild(renderer.domElement);
 
     const atom = new THREE.Group();
@@ -173,7 +174,14 @@ export function DataCore({ nodes }) {
     window.addEventListener('resize', resize);
 
     let frameId = 0;
+    let isInViewport = true;
+    let isAnimating = false;
     const animate = (time) => {
+      if (!isInViewport || document.hidden) {
+        isAnimating = false;
+        return;
+      }
+
       const t = time * 0.001;
       atom.rotation.y = t * 0.18 + pointer.x * 0.18;
       atom.rotation.x = Math.sin(t * 0.4) * 0.1 + pointer.y * 0.12;
@@ -197,10 +205,32 @@ export function DataCore({ nodes }) {
       renderer.render(scene, camera);
       frameId = requestAnimationFrame(animate);
     };
-    frameId = requestAnimationFrame(animate);
+
+    const resumeAnimation = () => {
+      if (isAnimating || !isInViewport || document.hidden) return;
+      isAnimating = true;
+      frameId = requestAnimationFrame(animate);
+    };
+
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        isInViewport = entry.isIntersecting;
+        if (isInViewport) resumeAnimation();
+      },
+      { threshold: 0.08 }
+    );
+    visibilityObserver.observe(mount);
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) resumeAnimation();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    resumeAnimation();
 
     return () => {
       cancelAnimationFrame(frameId);
+      visibilityObserver.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       mount.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('resize', resize);
       renderer.dispose();
